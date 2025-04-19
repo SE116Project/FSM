@@ -47,8 +47,9 @@ public class FSM{
     public static void checkForFunctions(String line)throws Exception {
         try{
             line=line.trim();
-            if(!line.contains(",")){
-                if(!line.contains(";")){
+
+            if(!line.contains(";")){
+                if(!line.contains(",")){
                     throw new InvalidCommandException("Invalid command "+line);
                 }
             }
