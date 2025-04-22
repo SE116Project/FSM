@@ -47,16 +47,18 @@ public class FSM{
     public static void checkForFunctions(String line)throws Exception {
         try{
             line=line.trim();
-
+            boolean checkTransitions = false;
             if(!line.contains(";")){
                 if(!line.contains(",")){
                     throw new InvalidCommandException("Invalid command "+line);
                 }
             }
-            if(line.contains(";")){
 
+            if(line.contains(";")){
+                if(line.charAt(0)==';'){
+
+                }
                 line=line.substring(0,line.indexOf(";"));
-                if(!line.contains(" ")){
                     if(!line.contains(",")){
                         if(!line.contains("EXIT")) {
                             if (!line.contains("CLEAR")) {
@@ -69,10 +71,11 @@ public class FSM{
                                 }
                             }
                         }}
-                }
+
+                if(line.length()<2){}
                 if(line.substring(0,3).compareToIgnoreCase("log")==0){
                     logFunction(line.substring(3).trim());
-                }
+                }if(line.length()<4){}
                 else if(line.substring(0,4).compareToIgnoreCase("load")==0){
 
                     loadFunction(line.substring(line.indexOf(" ")).trim());
@@ -82,9 +85,11 @@ public class FSM{
 
                     printFunction();
                 }
+                if(line.length()<5){}
                 else if(line.substring(0,5).compareToIgnoreCase("clear")==0){
                     clearFunction();
                 }
+                if(line.length()<7){}
                 else if (line.substring(0,6).compareToIgnoreCase("states")==0) {
                     if(line.compareToIgnoreCase("states")==0){
                         statesFunction();
@@ -92,6 +97,7 @@ public class FSM{
                         statesFunction(line.substring(line.indexOf(" ")).trim());
 
                 }
+                if(line.length()<8){}
                 else if(line.substring(0,7).compareToIgnoreCase("execute")==0) {
                     executeFunction();
                 }
@@ -106,9 +112,11 @@ public class FSM{
                     compileFunction();
                 }
                 else if (line.substring(0,11).compareToIgnoreCase("final-state")==0) {
-                    finalStateFunction();
+                    if(line.length()<11)throw new InvalidCommandException("Invalid command : " + line+"Needs parameter");
+                    finalStateFunction(line.substring(line.indexOf(" ")));
                 }
                 else if (line.substring(0,11).compareToIgnoreCase("transitions")==0) {
+                    checkTransitions = true;
                     transitionsFunction(line.substring(line.indexOf(" ")).trim());
                 }
                 else if (line.substring(0,13).compareToIgnoreCase("initial-state")==0) {
@@ -116,17 +124,22 @@ public class FSM{
                 }else if(line.contains(",")&&line.contains(";"))
                     throw new InvalidCommandException("Invalid command");
 
-            }else{
-                if(line.contains("TRANSITIONS")){
-                    if(line.substring(0,11).compareToIgnoreCase("TRANSITIONS")==0){
+            }else if(line.contains("TRANSITIONS")){
+
+                    if(line.substring(0,11).compareToIgnoreCase("TRANSITIONS")==0&& checkTransitions==false){
+
                         transitionsFunction(line.substring(line.indexOf(" ")));
                     }
-                }
-            }}catch (Exception e) {
+
+            }else {throw new InvalidCommandException("Invalid command : "+line);}
+        }catch (StringIndexOutOfBoundsException e) {
+
             if(e.getClass().equals(StringIndexOutOfBoundsException.class)) {
                 throw new InvalidCommandException("Invalid command");
             }
-        }
+            }catch (Exception z){
+            z.printStackTrace();
+            }
     }
     public static void symbolsFunction(String line){
         System.out.println(line+"belirtçe");
@@ -145,7 +158,7 @@ public class FSM{
     public static void initialStateFunction(){
         System.out.println("Initial state function");
     }
-    public static void finalStateFunction(){
+    public static void finalStateFunction(String line){
         System.out.println("Final state function");
     }
     public static void transitionsFunction(String data){
