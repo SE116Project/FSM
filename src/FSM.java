@@ -15,15 +15,19 @@ public class FSM{
             System.out.println(now);
             System.out.println("?");
 
+        }else if(args.length >1) {
+            loadFunction(args[0]);
         }
         else checkForFunctions(args[0]);
 
         Scanner in = new Scanner(System.in);
         String line;
         while(in.hasNextLine()) {
-            line = in.nextLine().trim();
-            checkForFunctions(line);
 
+            line = in.nextLine().trim();
+
+            checkForFunctions(line);
+            System.out.println("?");
         }
 
     }
@@ -59,6 +63,7 @@ public class FSM{
 
                 }
                 line=line.substring(0,line.indexOf(";"));
+                line=line.trim();
                     if(!line.contains(",")){
                         if(!line.contains("EXIT")) {
                             if (!line.contains("CLEAR")) {
