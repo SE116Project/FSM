@@ -49,30 +49,33 @@ public class FSM{
        }
    }
     public static void main(String[] args) throws Exception {
-
-
-        if(args.length == 0) {
+        if (args.length == 0) {
             LocalDateTime now = LocalDateTime.now();
             System.out.println("FSM DESIGNER <versionNo>");
+            log("FSM DESIGNER <versionNo>");
             System.out.println(now);
+            log(now.toString());
             System.out.println("?");
-
-        }else if(args.length >1) {
+            log("?");
+        } else if (args.length > 1) {
             loadFunction(args[0]);
+        } else {
+            checkForFunctions(args[0]);
         }
-        else checkForFunctions(args[0]);
 
         Scanner in = new Scanner(System.in);
         String line;
-        while(in.hasNextLine()) {
-
+        while (in.hasNextLine()) {
+            System.out.print("? ");
             line = in.nextLine().trim();
-
+            if (line.isEmpty()) continue;
+            log("?> " + line); 
             checkForFunctions(line);
             System.out.println("?");
+            log("?");
         }
-
     }
+
 
 
     public static void exitFunction(){
@@ -357,7 +360,7 @@ public class FSM{
 
     }
     private static PrintWriter logWriter = null;
-   
+
     public static void log(String message) {
         if (logWriter != null) {
             logWriter.println(message);
