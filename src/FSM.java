@@ -73,7 +73,11 @@ public class FSM{
     }
 
 
-    public static void exitFunction(){}
+    public static void exitFunction(){
+        System.out.println("TERMINATED BY USER");
+        System.exit(0);
+
+    }
     public static void loadFunction(String file)throws IOException {
         try {
             BufferedReader br=new BufferedReader(new FileReader(file));
@@ -343,7 +347,12 @@ public class FSM{
         System.out.println("Compile Function");
     }
     public static void clearFunction(){
-        System.out.println("Clear Function");
+
+        symbols.clear();
+        states.clear();
+        currentState = new CurrentState("");
+        System.out.println("FSM cleared.");
+
     }
     public static void logFunction(String data){
         System.out.println("Log Function");
