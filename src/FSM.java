@@ -5,6 +5,8 @@ import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.PrintWriter;
+import java.io.FileWriter;
 
 public class FSM{
    private static ArrayList<String> symbols=new ArrayList<>();
@@ -354,8 +356,29 @@ public class FSM{
         System.out.println("FSM cleared.");
 
     }
+    private static PrintWriter logWriter = null;
     public static void logFunction(String data){
-        System.out.println("Log Function");
+        String filename = data == null ? "" : data.trim();
+        if (filename.isEmpty()) {
+            if (logWriter != null) {
+                logWriter.close();
+                logWriter = null;
+                System.out.println("STOPPED LOGGING");
+            } else {
+                System.out.println("LOGGING was not enabled");
+            }
+            return;
+        }
+        if (logWriter != null) {
+            logWriter.close();
+        }
+        try {
+            logWriter = new PrintWriter(new FileWriter(filename));
+            System.out.println("LOGGING to file: " + filename);
+        } catch (IOException e) {
+            logWriter = null;
+            System.out.println("Error: cannot write file " + filename);
+        }
     }
     public static  void executeFunction(String data){
        int counter=0;
