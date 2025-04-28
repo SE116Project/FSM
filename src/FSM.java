@@ -357,15 +357,24 @@ public class FSM{
 
     }
     private static PrintWriter logWriter = null;
-    public static void logFunction(String data){
+   
+    public static void log(String message) {
+        if (logWriter != null) {
+            logWriter.println(message);
+            logWriter.flush();
+        }
+    }
+    public static void logFunction(String data) {
         String filename = data == null ? "" : data.trim();
         if (filename.isEmpty()) {
             if (logWriter != null) {
                 logWriter.close();
                 logWriter = null;
                 System.out.println("STOPPED LOGGING");
+                log("STOPPED LOGGING");
             } else {
                 System.out.println("LOGGING was not enabled");
+                log("LOGGING was not enabled");
             }
             return;
         }
@@ -375,9 +384,11 @@ public class FSM{
         try {
             logWriter = new PrintWriter(new FileWriter(filename));
             System.out.println("LOGGING to file: " + filename);
+            log("LOGGING to file: " + filename);
         } catch (IOException e) {
             logWriter = null;
             System.out.println("Error: cannot write file " + filename);
+            log("Error: cannot write file " + filename);
         }
     }
     public static  void executeFunction(String data){
