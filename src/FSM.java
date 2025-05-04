@@ -35,6 +35,13 @@ public class FSM{
    public static void setCurrentState(CurrentState currentState){
        FSM.currentState=currentState;
    }
+    public static PrintWriter getLogWriter() {
+        return logWriter;
+    }
+
+    public static void setLogWriter(PrintWriter writer) {
+        FSM.logWriter = writer;
+    }
 
 
    public static void addSymbol(String symbol){
