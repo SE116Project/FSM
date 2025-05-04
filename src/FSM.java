@@ -284,21 +284,48 @@ public class FSM{
 
     }
     public static void initialStateFunction(String line){
+        String stateName = line.trim();
+        boolean stateExists = false;
 
+        for (State state : states) {
+            if (state.getStateName().equalsIgnoreCase(stateName)) {
+                stateExists = true;
+                break;
+            }
+        }
+
+        if (!stateExists) {
+            System.out.println("Warning: " + stateName + " was not previously declared as a state");
+        }
+       
        InitialState initialState=  new InitialState(line.trim());
        states.add(initialState);
         System.out.println(initialState.getStateName());
     }
-    public static void finalStateFunction(String line){
-       line=line.trim();
-       String[] values=line.split(" ");
-       for(String symbol:values){
-           FinalState finalState=  new FinalState(symbol);
-           addState(finalState);
-       }
+   public static void finalStateFunction(String line) {
+   line = line.trim();
+        String[] values = line.split(" ");
 
-        for(State a:states){
-            if(a.getClass().equals(FinalState.class)){
+        for (String symbol : values) {
+            boolean stateExists = false;
+
+            for (State state : states) {
+                if (state.getStateName().equalsIgnoreCase(symbol)) {
+                    stateExists = true;
+                    break;
+                }
+            }
+
+            if (!stateExists) {
+                System.out.println("Warning: " + symbol + " was not previously declared as a state");
+            }
+
+            FinalState finalState = new FinalState(symbol);
+            states.add(finalState);
+        }
+
+        for (State a : states) {
+            if (a instanceof FinalState) {
                 System.out.println(a.getStateName());
             }
         }
