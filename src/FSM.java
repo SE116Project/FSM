@@ -29,6 +29,12 @@ public class FSM{
    public static void setSymbols(ArrayList<String> symbols){
        FSM.symbols=symbols;
    }
+   public static CurrentState getCurrentState(){
+       return currentState;
+   }
+   public static void setCurrentState(CurrentState currentState){
+       FSM.currentState=currentState;
+   }
 
 
    public static void addSymbol(String symbol){
