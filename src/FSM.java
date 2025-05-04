@@ -45,9 +45,13 @@ public class FSM{
 
 
    public static void addSymbol(String symbol){
+      if (!symbol.matches("^[a-zA-Z0-9]$")) {
+            System.out.println("Warning: invalid symbol " + symbol);
+            return;
+        }
        if(!symbols.contains(symbol)){
            symbols.add(symbol);
-       }else System.out.println("Symbol is already in the list");
+       }else System.out.println("Symbol is'"+symbol+"' already in the list");
    }
    public static void removeSymbol(String symbol){
        if(symbols.contains(symbol)){
