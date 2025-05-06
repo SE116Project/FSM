@@ -1,12 +1,7 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.reflect.Array;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.io.PrintWriter;
-import java.io.FileWriter;
 
 public class FSM{
    private static ArrayList<String> symbols=new ArrayList<>();
@@ -83,7 +78,6 @@ public class FSM{
         Scanner in = new Scanner(System.in);
         String line;
         while (in.hasNextLine()) {
-            System.out.print("? ");
             line = in.nextLine().trim();
             if (line.isEmpty()) continue;
             log("?> " + line); 
@@ -104,6 +98,32 @@ public class FSM{
         try {
             BufferedReader br=new BufferedReader(new FileReader(file));
             String line;
+            if(file.endsWith(".fs")){
+                try {
+                    ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
+                    while (in.available()<=0) {
+                        Object a=in.readObject();
+                        if(a.getClass().equals(State.class)){
+                            addState((State)a);
+                        }else if(a.getClass().equals(FinalState.class)){
+                            addState((FinalState)a);
+                        } else if (a.getClass().equals(InitialState.class)) {
+                            addState((InitialState)a);
+                        }else if(a.getClass().equals(String.class)){
+                            addSymbol((String)a);
+                        }
+
+
+                    }
+
+
+                    in.close();
+                    return;
+                }catch (EOFException eofe) {
+
+                    return;
+                }
+            }
             while(br.ready()) {
                 line = br.readLine();
 
@@ -216,7 +236,7 @@ public class FSM{
 
                 }
                 else if (line.substring(0,7).compareToIgnoreCase("compile")==0) {
-                    compileFunction();
+                    compileFunction(line.substring(line.indexOf(" "),line.length()).trim());
                 }
                 if(line.length()<11){}
                 else if (line.substring(0,11).compareToIgnoreCase("final-state")==0) {
@@ -294,9 +314,7 @@ public class FSM{
             }
         }
 
-        if (!stateExists) {
-            System.out.println("Warning: " + stateName + " was not previously declared as a state");
-        }
+
        
        InitialState initialState=  new InitialState(line.trim());
        states.add(initialState);
@@ -316,9 +334,7 @@ public class FSM{
                 }
             }
 
-            if (!stateExists) {
-                System.out.println("Warning: " + symbol + " was not previously declared as a state");
-            }
+
 
             FinalState finalState = new FinalState(symbol);
             states.add(finalState);
@@ -392,7 +408,21 @@ public class FSM{
        statesFunction();
        symbolsFunction();
     }
-    public static  void compileFunction(){
+    public static  void compileFunction(String line){
+       try{
+           setCurrentState(new CurrentState(""));
+           ObjectOutputStream objectOutputStream=new ObjectOutputStream(new FileOutputStream(line));
+           for(State a:states){
+               objectOutputStream.writeObject(a);
+           }
+           for (String a:symbols) {
+               objectOutputStream.writeObject(a);
+           }
+
+           objectOutputStream.close();
+       }catch (Exception e){
+           e.printStackTrace();
+       }
         System.out.println("Compile Function");
     }
     public static void clearFunction(){
@@ -438,7 +468,7 @@ public class FSM{
             log("Error: cannot write file " + filename);
         }
     }
-    public static  void executeFunction(String data){
+    public static  void executeFunction(String data) throws InvalidSymbolException {
        int counter=0;
        for(State a:states){
 
@@ -454,22 +484,26 @@ public class FSM{
         }
        for(int i=1;i<data.length();i++){
            for(State a:states){
-               if(a.getStateName().equals(currentState.getStateName())){
+               if(a.getStateName().equalsIgnoreCase(currentState.getStateName())){
                    currentState.setStateName(a.processInput(String.valueOf(data.charAt(i))));
-
                }
            }
        }
 
        String check=currentState.getStateName();
+       System.out.println(currentState.getStateName());
        for(State a:states){
            if(a.getClass().equals(FinalState.class)){
-               if(check.equals(a.getStateName())){
+               if(check==null){
+                   throw new InvalidSymbolException();
+               }
+               if(a.getStateName().equalsIgnoreCase(check)){
                    System.out.println("Yes");
                    return;
                }
            }
        }
+       if(states.isEmpty())return;
        System.out.println("No");
 
 

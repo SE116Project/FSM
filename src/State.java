@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class State {
+public class State implements Serializable{
     private String stateName;
     private HashMap<String,String> connectedNodes;
     public State(String stateName) {
