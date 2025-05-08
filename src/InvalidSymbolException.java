@@ -1,5 +1,8 @@
 public class InvalidSymbolException extends Exception{
-    public InvalidSymbolException(String message){
-        super(message);
+    public InvalidSymbolException(){
+        super();
+    }
+
+    public InvalidSymbolException(String s) {
     }
 }
