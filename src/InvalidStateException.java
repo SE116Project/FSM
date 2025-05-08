@@ -1,5 +1,5 @@
 public class InvalidStateException extends Exception {
-    public InvalidStateException(String s) {
-        super();
+    public InvalidStateException(String message) {
+        super(message);
     }
 }
