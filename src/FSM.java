@@ -1,4 +1,5 @@
 import java.io.*;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -80,8 +81,10 @@ public class FSM {
             log(now.toString());
             System.out.println("?");
             log("?");
-        } else if (args.length > 1) {
-            loadFunction(args[0]);
+        } else if (args.length >= 1) {
+            if (args[0].endsWith(".log")||args[0].endsWith(".txt")||args[0].endsWith(".fs")) {
+                loadFunction(args[0]);
+            }
         } else {
             checkForFunctions(args[0]);
         }
@@ -107,11 +110,7 @@ public class FSM {
 
     public static void loadFunction(String file) throws IOException {
 
-        if (!file.endsWith(".fs")) {
-            System.out.println("Error: Invalid file format. Please provide a file with .fs extension.");
-            log("Error: Invalid file format. Please provide a file with .fs extension.");
-            return;
-        }
+
 
 
         File f = new File(file);
@@ -166,6 +165,7 @@ public class FSM {
         try {
 
             line = line.trim();
+            log(line);
             if (line.equals("")) return;
             boolean checkTransitions = false;
             if (line.contains("TRANSITIONS") && line.contains(",")) {
@@ -553,5 +553,3 @@ public class FSM {
     }
 
 }
-
-
