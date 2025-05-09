@@ -80,8 +80,10 @@ public class FSM {
             log(now.toString());
             System.out.println("?");
             log("?");
-        } else if (args.length > 1) {
-            loadFunction(args[0]);
+        } else if (args.length >= 1) {
+            if (args[0].endsWith(".log") || args[0].endsWith(".txt") || args[0].endsWith(".fs")) {
+                loadFunction(args[0]);
+            }
         } else {
             checkForFunctions(args[0]);
         }
@@ -511,42 +513,46 @@ public class FSM {
         }
     }
 
-    public static  void executeFunction(String data) throws InvalidSymbolException {
-        int counter=0;
-        for(State a:states){
+    public static void executeFunction(String data) throws InvalidSymbolException {
+        int counter = 0;
+        if(states.isEmpty()){
+            System.out.println("Nothing to execute states are not declared");
+            return;
+        }
+        for (State a : states) {
 
-            if(a.getClass().equals(InitialState.class)){
+            if (a.getClass().equals(InitialState.class)) {
                 currentState.setStateName(a.processInput(String.valueOf(data.charAt(counter))));
-                for(State b:states){
-                    if(b.getStateName().equalsIgnoreCase(currentState.getStateName())){
+                for (State b : states) {
+                    if (b.getStateName().equalsIgnoreCase(currentState.getStateName())) {
                         currentState.setStateName(b.getStateName());
                     }
                 }
                 counter++;
             }
         }
-        for(int i=1;i<data.length();i++){
-            for(State a:states){
-                if(a.getStateName().equalsIgnoreCase(currentState.getStateName())){
+        for (int i = 1; i < data.length(); i++) {
+            for (State a : states) {
+                if (a.getStateName().equalsIgnoreCase(currentState.getStateName())) {
                     currentState.setStateName(a.processInput(String.valueOf(data.charAt(i))));
                 }
             }
         }
 
-        String check=currentState.getStateName();
+        String check = currentState.getStateName();
         System.out.println(currentState.getStateName());
-        for(State a:states){
-            if(a.getClass().equals(FinalState.class)){
-                if(check==null){
+        for (State a : states) {
+            if (a.getClass().equals(FinalState.class)) {
+                if (check == null) {
                     throw new InvalidSymbolException("Invalid symbol: null state encountered before reaching final state.");
                 }
-                if(a.getStateName().equalsIgnoreCase(check)){
+                if (a.getStateName().equalsIgnoreCase(check)) {
                     System.out.println("Yes");
                     return;
                 }
             }
         }
-        if(states.isEmpty())return;
+        if (states.isEmpty()) return;
         System.out.println("No");
 
 
