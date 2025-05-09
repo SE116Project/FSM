@@ -1,8 +1,10 @@
 import java.io.*;
 import java.io.*;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
+
 
 public class FSM {
     private static ArrayList<String> symbols = new ArrayList<>();
@@ -19,7 +21,7 @@ public class FSM {
         } else System.out.println("State already exists");
     }
 
-    public static void setStates(ArrayList<State> states) {
+    public static void setStates(ArrayList states) {
         FSM.states = states;
     }
 
@@ -82,7 +84,7 @@ public class FSM {
             System.out.println("?");
             log("?");
         } else if (args.length >= 1) {
-            if (args[0].endsWith(".log")||args[0].endsWith(".txt")||args[0].endsWith(".fs")) {
+            if (args[0].endsWith(".log") || args[0].endsWith(".txt") || args[0].endsWith(".fs")) {
                 loadFunction(args[0]);
             }
         } else {
@@ -109,7 +111,11 @@ public class FSM {
     }
 
     public static void loadFunction(String file) throws IOException {
-
+        states.clear();
+        symbols.clear();
+        currentState.setStateName("");
+        System.out.println("Old data is deleted");
+        System.out.println("Loading " + file);
 
 
 
@@ -165,7 +171,6 @@ public class FSM {
         try {
 
             line = line.trim();
-            log(line);
             if (line.equals("")) return;
             boolean checkTransitions = false;
             if (line.contains("TRANSITIONS") && line.contains(",")) {
@@ -229,42 +234,75 @@ public class FSM {
                 if (line.length() < 2) {
                 }
                 if (line.substring(0, 3).compareToIgnoreCase("log") == 0) {
+                    if(!line.contains(" ")){
+                        throw new InvalidCommandException("Invalid command : " + line);
+                    }
                     logFunction(line.substring(3).trim());
                 }
                 if (line.length() < 4) {
                 } else if (line.substring(0, 4).compareToIgnoreCase("load") == 0) {
-
+                    if(!line.contains(" ")){
+                        throw new InvalidCommandException("Invalid command : " + line);
+                    }
                     loadFunction(line.substring(line.indexOf(" ")).trim());
                 } else if (line.substring(0, 4).compareToIgnoreCase("exit") == 0) {
+                    if(line.length()!=4){
+                        throw new InvalidCommandException("Invalid command : " + line);
+                    }
                     exitFunction();
-                } else if (line.compareToIgnoreCase("PRINT") == 0) {
-
+                } else if (line.substring(0, 5).compareToIgnoreCase("PRINT") == 0) {
+                    if(line.length()!=5){
+                        throw new InvalidCommandException("Invalid command : " + line);
+                    }
                     printFunction();
                 }
                 if (line.length() < 5) {
                 } else if (line.substring(0, 5).compareToIgnoreCase("clear") == 0) {
+                    if(line.length()!=5){
+                        throw new InvalidCommandException("Invalid command : " + line);
+                    }
                     clearFunction();
                 }
                 if (line.length() < 6) {
                 } else if (line.substring(0, 6).compareToIgnoreCase("states") == 0) {
                     line = line.trim();
-                    if (line.compareToIgnoreCase("states") == 0) {
-                        statesFunction();
+                    if(!line.contains(" ")){
+                        if(line.length()==6){
+                            statesFunction();
+                            return;
+                        }
+                        throw new InvalidCommandException("Invalid command : " + line);
                     } else
                         statesFunction(line.substring(line.indexOf(" ")).trim());
 
                 }
                 if (line.length() < 7) {
                 } else if (line.substring(0, 7).compareToIgnoreCase("execute") == 0) {
+                    if(!line.contains(" ")){
+                        throw new InvalidCommandException("Invalid command : " + line);
+                    }
                     executeFunction(line.substring(line.indexOf(" ")).trim());
+
                 } else if (line.substring(0, 7).compareToIgnoreCase("symbols") == 0) {
                     line = line.trim();
+
                     if (line.compareToIgnoreCase("symbols") == 0) {
                         symbolsFunction();
                     } else
-                        symbolsFunction(line.substring(line.indexOf(" ")).trim());
+                    if(!line.contains(" ")){
+                        throw new InvalidCommandException("Invalid command : " + line);
+                    }
+                    symbolsFunction(line.substring(line.indexOf(" ")).trim());
 
                 } else if (line.substring(0, 7).compareToIgnoreCase("compile") == 0) {
+                    if(line.length()==7){
+                        throw new InvalidCommandException("Compile command needs parameter : " + line);
+                    }else if(!line.contains(" ")){
+                        throw new InvalidCommandException("Invalid command : " + line);
+                    }
+                    if(line.charAt(7)!=' '){
+                        throw new InvalidCommandException("Invalid command : " + line);
+                    }
                     compileFunction(line.substring(line.indexOf(" "), line.length()).trim());
                 }
                 if (line.length() < 11) {
@@ -317,7 +355,7 @@ public class FSM {
         printSymbols();
     }
 
-    public static void statesFunction(String line) {
+    public static void statesFunction(String line) throws InvalidStateException {
         line = line.trim();
         if (line.contains(" ")) {
             String[] values = line.split(" ");
@@ -325,7 +363,12 @@ public class FSM {
                 State state = new State(symbol);
                 addState(state);
             }
-        } else addState(new State(line));
+        } else{
+            if(getStates().contains(line)){
+                System.out.println();
+                throw new InvalidStateException(line +" : state already declared");
+            }
+            addState(new State(line));}
 
     }
 
@@ -338,14 +381,20 @@ public class FSM {
 
     }
 
-    public static void initialStateFunction(String line) {
+    public static void initialStateFunction(String line) throws InvalidStateException {
         String stateName = line.trim();
         boolean stateExists = false;
-
+        if(getStates().contains(stateName)){
+            throw new InvalidStateException(stateName+" : already declared");
+        }
         for (State state : states) {
+            stateExists =false;
             if (state.getStateName().equalsIgnoreCase(stateName)) {
                 stateExists = true;
                 break;
+            }
+            if(stateExists){
+                throw new InvalidStateException(stateName+" : already declared");
             }
         }
 
@@ -355,17 +404,16 @@ public class FSM {
         System.out.println(initialState.getStateName());
     }
 
-    public static void finalStateFunction(String line) {
+    public static void finalStateFunction(String line) throws InvalidStateException {
         line = line.trim();
         String[] values = line.split(" ");
-
+        boolean stateExists = false;
         for (String symbol : values) {
-            boolean stateExists = false;
+
 
             for (State state : states) {
                 if (state.getStateName().equalsIgnoreCase(symbol)) {
-                    stateExists = true;
-                    break;
+                    throw new InvalidStateException(symbol+" is already declared");
                 }
             }
 
@@ -392,7 +440,7 @@ public class FSM {
         if (data.charAt(data.length() - 1) == ',') {
             data = data.substring(0, data.length() - 1).trim();
         }
-        System.out.println(data);
+
         String[] values = data.split(",");
 
         String[] data2;
@@ -434,7 +482,7 @@ public class FSM {
                     }
                 }
 
-            } else throw new InvalidSymbolException("Invalid symbol: " + data2[0] + " used for transition.");
+            } else throw new InvalidStateException("Invalid state: " + data2[0] + " used for transition.");
 
         }
     }
@@ -511,44 +559,55 @@ public class FSM {
         }
     }
 
-    public static  void executeFunction(String data) throws InvalidSymbolException {
-        int counter=0;
-        for(State a:states){
+    public static void executeFunction(String data) throws Exception {
+        try {
+            char[] checks = data.toCharArray();
+            for (char c : checks) {
+                if (!symbols.contains(String.valueOf(c))) {
+                    throw new InvalidSymbolException(c + " is not a valid symbol");
+                }
+            }
+            if (states.isEmpty()) {
+                System.out.println("Nothing to execute states are not declared");
+                return;
+            }
+            for (State a : states) {
 
-            if(a.getClass().equals(InitialState.class)){
-                currentState.setStateName(a.processInput(String.valueOf(data.charAt(counter))));
-                for(State b:states){
-                    if(b.getStateName().equalsIgnoreCase(currentState.getStateName())){
-                        currentState.setStateName(b.getStateName());
+                if (a.getClass().equals(InitialState.class)) {
+                    currentState.setStateName(a.processInput(String.valueOf(data.charAt(0))));
+                    for (State b : states) {
+                        if (b.getStateName().equalsIgnoreCase(currentState.getStateName())) {
+                            currentState.setStateName(b.getStateName());
+                        }
                     }
                 }
-                counter++;
             }
-        }
-        for(int i=1;i<data.length();i++){
-            for(State a:states){
-                if(a.getStateName().equalsIgnoreCase(currentState.getStateName())){
-                    currentState.setStateName(a.processInput(String.valueOf(data.charAt(i))));
+            for (int i = 1; i < data.length(); i++) {
+                for (State a : states) {
+                    if (a.getStateName().equalsIgnoreCase(currentState.getStateName())) {
+                        currentState.setStateName(a.processInput(String.valueOf(data.charAt(i))));
+                    }
                 }
             }
-        }
 
-        String check=currentState.getStateName();
-        System.out.println(currentState.getStateName());
-        for(State a:states){
-            if(a.getClass().equals(FinalState.class)){
-                if(check==null){
-                    throw new InvalidSymbolException("Invalid symbol: null state encountered before reaching final state.");
-                }
-                if(a.getStateName().equalsIgnoreCase(check)){
-                    System.out.println("Yes");
-                    return;
+            String check = currentState.getStateName();
+            System.out.println("Current state (last) : " + currentState.getStateName());
+            for (State a : states) {
+                if (a.getClass().equals(FinalState.class)) {
+                    if (check == null) {
+                        throw new InvalidSymbolException("Invalid symbol: null state encountered before reaching final state.");
+                    }
+                    if (a.getStateName().equalsIgnoreCase(check)) {
+                        System.out.println("Yes");
+                        return;
+                    }
                 }
             }
+            if (states.isEmpty()) return;
+            System.out.println("No");
+        }catch (Exception e) {
+            e.printStackTrace();
         }
-        if(states.isEmpty())return;
-        System.out.println("No");
-
 
     }
 
