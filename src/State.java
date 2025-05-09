@@ -36,10 +36,13 @@ public class State implements Serializable{
         }
 
     }
-    public String processInput(String input) {
+    public String processInput(String input) throws Exception{
         String output = connectedNodes.get(input);
+        if(output==null) {
+            throw new InvalidTransitionException("Node not found for "+stateName+"("+input+")---> X");
+        }
         System.out.println(stateName+"("+input+")"+"-->"+output);
-       return output;
+        return output;
     }
 
 }

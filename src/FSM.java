@@ -1,6 +1,4 @@
 import java.io.*;
-import java.io.*;
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -15,10 +13,13 @@ public class FSM {
         return states;
     }
 
-    public static void addState(State state) {
-        if (!states.contains(state)) {
-            states.add(state);
-        } else System.out.println("State already exists");
+    public static void addState(State state)throws InvalidStateException {
+        for(State s : states) {
+            if(s.getStateName().equalsIgnoreCase(state.getStateName())) {
+                throw new InvalidStateException("State already exists");
+            }
+        }
+        states.add(state);
     }
 
     public static void setStates(ArrayList states) {
@@ -307,11 +308,13 @@ public class FSM {
                 }
                 if (line.length() < 11) {
                 } else if (line.substring(0, 11).compareToIgnoreCase("final-state") == 0) {
-                    if (line.length() < 11)
+                    if (line.length() < 12)
                         throw new InvalidCommandException("Invalid command : " + line + "Needs parameter");
                     finalStateFunction(line.substring(line.indexOf(" ")));
                 } else if (line.substring(0, 11).compareToIgnoreCase("TRANSITIONS") == 0) {
-
+                        if(line.length()==11){
+                            throw new InvalidCommandException("Transitions command needs parameter : " + line);
+                        }
                     transitionsFunction(line.substring(line.indexOf(" ")).trim());
                 } else if (line.substring(0, 13).compareToIgnoreCase("initial-state") == 0) {
                     initialStateFunction(line.substring(line.indexOf(" ")));
@@ -319,7 +322,9 @@ public class FSM {
                     throw new InvalidCommandException("Invalid command");
 
             } else if (line.contains("TRANSITIONS")) {
-
+                if(line.length()==11){
+                    throw new InvalidCommandException("TRANSITIONS command needs parameter : " + line);
+                }
                 if (line.substring(0, 11).compareToIgnoreCase("TRANSITIONS") == 0 && checkTransitions == false) {
 
                     transitionsFunction(line.substring(line.indexOf(" ")));
@@ -383,6 +388,12 @@ public class FSM {
 
     public static void initialStateFunction(String line) throws InvalidStateException {
         String stateName = line.trim();
+        for (State state : states) {
+            if (state.getClass().equals(InitialState.class)) {
+                System.out.println("Initial state already declared as : " + state.getStateName());
+                return;
+            }
+        }
         boolean stateExists = false;
         if(getStates().contains(stateName)){
             throw new InvalidStateException(stateName+" : already declared");
@@ -421,7 +432,7 @@ public class FSM {
             FinalState finalState = new FinalState(symbol);
             states.add(finalState);
         }
-
+            System.out.println("Final state: ");
         for (State a : states) {
             if (a instanceof FinalState) {
                 System.out.println(a.getStateName());
@@ -461,7 +472,6 @@ public class FSM {
                 a = a.trim();
             }
 
-            System.out.println(data2[0]);
             if (symbols.contains(data2[0])) {
                 check1 = true;
                 for (State a : states) {
@@ -482,7 +492,7 @@ public class FSM {
                     }
                 }
 
-            } else throw new InvalidStateException("Invalid state: " + data2[0] + " used for transition.");
+            } else throw new InvalidStateException("Invalid state: " + data2[0]);
 
         }
     }
@@ -510,7 +520,7 @@ public class FSM {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("Compile Function");
+
     }
 
     public static void clearFunction() {
@@ -595,7 +605,7 @@ public class FSM {
             for (State a : states) {
                 if (a.getClass().equals(FinalState.class)) {
                     if (check == null) {
-                        throw new InvalidSymbolException("Invalid symbol: null state encountered before reaching final state.");
+                        throw new InvalidSymbolException("Symbol is not declared");
                     }
                     if (a.getStateName().equalsIgnoreCase(check)) {
                         System.out.println("Yes");
