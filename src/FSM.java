@@ -171,6 +171,7 @@ public class FSM {
         try {
 
             line = line.trim();
+            log(line);
             if (line.equals("")) return;
             boolean checkTransitions = false;
             if (line.contains("TRANSITIONS") && line.contains(",")) {
