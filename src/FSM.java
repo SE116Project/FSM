@@ -78,8 +78,8 @@ public class FSM {
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             LocalDateTime now = LocalDateTime.now();
-            System.out.println("FSM DESIGNER <versionNo>");
-            log("FSM DESIGNER <versionNo>");
+            System.out.println("FSM DESIGNER v1.0.0");
+            log("FSM DESIGNER v1.0.0");
             System.out.println(now);
             log(now.toString());
             System.out.println("?");
@@ -115,7 +115,6 @@ public class FSM {
         states.clear();
         symbols.clear();
         currentState.setStateName("");
-        System.out.println("Old data is deleted");
         System.out.println("Loading " + file);
 
 
@@ -412,7 +411,8 @@ public class FSM {
 
         InitialState initialState = new InitialState(line.trim());
         states.add(initialState);
-        System.out.println(initialState.getStateName());
+        System.out.println("Initial state declared : "+initialState.getStateName());
+
     }
 
     public static void finalStateFunction(String line) throws InvalidStateException {
@@ -432,10 +432,10 @@ public class FSM {
             FinalState finalState = new FinalState(symbol);
             states.add(finalState);
         }
-            System.out.println("Final state: ");
+
         for (State a : states) {
             if (a instanceof FinalState) {
-                System.out.println(a.getStateName());
+                System.out.println("Final state declared as :"+a.getStateName());
             }
         }
     }
